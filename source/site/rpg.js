@@ -81,8 +81,8 @@ const RPG = (() => {
   const levelCost = (k) => (k <= 5 ? 1 : 2);
   const LEVEL_HP = [15, 31.25, 45, 62.5, 80, 106.25, 128.75, 187.5, 250, 500]; // multiplicateur de PV des ennemis, niveau 1 à 10
   const levelHp = (k) => LEVEL_HP[k - 1];
-  const LEVEL_GOLD = [330, 400, 480, 560, 650, 750, 850, 960, 1080, 1200]; // or de départ
-  const LEVEL_GOLDMUL = [1, 1.3, 1.6, 1.9, 2.2, 2.6, 3, 3.4, 3.8, 4.3]; // multiplicateur de l'or des monstres et des fins de vague
+  const LEVEL_GOLD = [430, 520, 620, 730, 845, 975, 1105, 1250, 1405, 1560]; // or de départ
+  const LEVEL_GOLDMUL = [1.3, 1.7, 2.1, 2.5, 2.9, 3.4, 3.9, 4.4, 4.9, 5.6]; // multiplicateur de l'or des monstres et des fins de vague
 
   // ---- État du joueur -----------------------------------------------------
   const S = () => {
