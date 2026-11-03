@@ -60,12 +60,18 @@ const RPG = (() => {
   ];
   const INV_MAX = 60;
   const DUNGEON_LEVEL = 5; // index du niveau de carte utilisé comme donjon
-  // Poids de tirage de la rareté selon la difficulté du donjon.
+  // Poids de tirage de la rareté selon la difficulté de base du niveau de donjon.
   const LOOT_W = {
     facile: [58, 30, 10, 1.8, 0.2],
     normal: [35, 35, 20, 8, 2],
     difficile: [18, 32, 28, 17, 5],
   };
+  // Niveaux de donjon : indépendants des difficultés Facile/Normal/Difficile ; ils deviennent simplement de plus en plus durs.
+  const DUN_LEVELS = 10;
+  const MIN_LEVEL = [1, 2, 4, 6, 8]; // niveau de donjon minimum pour qu'une rareté puisse tomber
+  const levelDiff = () => "facile"; // base de vagues ; la difficulté vient du multiplicateur de points de vie
+  const levelCost = (k) => (k <= 5 ? 1 : 2);
+  const levelHp = (k) => 1 + 0.5 * (k - 1); // niveau 1 = x1, niveau 10 = x5,5
 
   // ---- État du joueur -----------------------------------------------------
   const S = () => {
@@ -77,6 +83,7 @@ const RPG = (() => {
       r.keyT = Date.now();
     }
     r.paid = r.paid || { d: "", n: 0 };
+    r.dun = r.dun || {}; // plus haut niveau terminé par biome
     return r;
   };
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -134,8 +141,8 @@ const RPG = (() => {
       names = NAMES[slotId];
     return { id, slot: slotId, r: rarity, lv: ilvl, name: names[Math.floor(Math.random() * names.length)], lines };
   }
-  function rollRarity(diff) {
-    const w = LOOT_W[diff] || LOOT_W.facile,
+  function rollRarity(k) {
+    const w = LOOT_W.normal.map((x, i) => (k >= MIN_LEVEL[i] ? x * (1 + 0.1 * (k - MIN_LEVEL[i])) : 0)),
       tot = w.reduce((a, b) => a + b, 0);
     let x = Math.random() * tot;
     for (let i = 0; i < w.length; i++) if ((x -= w[i]) < 0) return i;
@@ -263,16 +270,27 @@ const RPG = (() => {
         .join("") || '<p class="note">Aucune pièce. Gagne des donjons pour en trouver.</p>'
     }</div>`;
   }
+  let sel = {}; // niveau choisi par biome
   function dunHtml(k) {
-    const rows = ue
-      .map((b, bi) => {
-        if (!js(bi)) return `<div class="rpg-dun lock"><b>${Rt} ${b.name}</b><small>Termine le biome précédent en Facile</small></div>`;
-        const mk = (d, cost, label) =>
-          `<button class="btn small ${d === "facile" ? "" : "go"}" data-rpg="dungeon" data-b="${bi}" data-d="${d}" ${k >= cost && Is(d) ? "" : "disabled"}>${label} · ${cost} 🗝️</button>`;
-        return `<div class="rpg-dun"><b>${b.name}</b><div class="rpg-act">${mk("facile", 1, "Facile")}${mk("normal", 2, Is("normal") ? "Normal" : "Normal (verrouillé)")}</div></div>`;
-      })
-      .join("");
-    return `<p class="note">Chaque donjon coûte des clés. Une victoire rapporte une pièce d'équipement (une de plus si tu gagnes avec 3 étoiles). Si le cristal est brisé, la clé est perdue.</p>${rows}`;
+    const r = S(),
+      rows = ue
+        .map((b, bi) => {
+          if (!js(bi)) return `<div class="rpg-dun lock"><b>${Rt} ${b.name}</b><small>Termine le biome précédent en Facile</small></div>`;
+          const done = r.dun[bi] || 0,
+            top = Math.min(DUN_LEVELS, done + 1),
+            cur = Math.min(sel[bi] || top, top),
+            btns = [];
+          for (let n = 1; n <= DUN_LEVELS; n++)
+            btns.push(`<button class="btn small ${n === cur ? "go" : ""}" data-rpg="sel" data-b="${bi}" data-k="${n}" ${n > top ? "disabled" : ""}>${n > top ? Rt : n}</button>`);
+          const drops = RARITY.filter((_, i) => MIN_LEVEL[i] <= cur)
+              .map((x) => `<span style="color:${x.color}">${x.name}</span>`)
+              .join(", "),
+            nxt = RARITY.findIndex((_, i) => MIN_LEVEL[i] > cur),
+            hint = nxt >= 0 ? ` · ${RARITY[nxt].name} dès le niveau ${MIN_LEVEL[nxt]}` : "";
+          return `<div class="rpg-dun"><b>${b.name}</b><small>Niveau ${cur} · Terminés : ${done}/${DUN_LEVELS}</small><div class="rpg-act" style="flex-wrap:wrap">${btns.join("")}</div><small>Butin : ${drops}${hint}</small><button class="btn go" data-rpg="dungeon" data-b="${bi}" data-k="${cur}" ${k >= levelCost(cur) ? "" : "disabled"}>Entrer · ${levelCost(cur)} 🗝️</button></div>`;
+        })
+        .join("");
+    return `<p class="note">Chaque donjon a 10 niveaux : termine un niveau pour débloquer le suivant. Les raretés les plus hautes ne tombent qu'à partir de certains niveaux. Une victoire rapporte une pièce (une de plus avec 3 étoiles). Si le cristal est brisé, la clé est perdue.</p>${rows}`;
   }
   function shopHtml(r, k) {
     const n = paidToday(),
@@ -329,16 +347,17 @@ const RPG = (() => {
         me();
         msg = `+${PAID_KEYS} clés !`;
       }
-    } else if (a === "dungeon") {
-      startDungeon(+b.dataset.b, b.dataset.d);
+    } else if (a === "sel") sel[+b.dataset.b] = +b.dataset.k;
+    else if (a === "dungeon") {
+      startDungeon(+b.dataset.b, +b.dataset.k);
       return;
     } else if (a === "open") tab = b.dataset.k || tab;
     open();
   }
-  function startDungeon(b, diff) {
-    const cost = diff === "facile" ? 1 : 2,
+  function startDungeon(b, k) {
+    const cost = levelCost(k),
       r = S();
-    if (!js(b) || !Is(diff)) return;
+    if (!js(b) || k < 1 || k > DUN_LEVELS || k > (r.dun[b] || 0) + 1) return;
     if (r.inv.length >= INV_MAX) {
       msg = "Inventaire plein : vends des pièces.";
       tab = "inv";
@@ -353,8 +372,10 @@ const RPG = (() => {
     me();
     Va(b);
     Ct();
-    xs(diff, DUNGEON_LEVEL);
-    l.dungeon = { b, diff, cost };
+    xs(levelDiff(k), DUNGEON_LEVEL);
+    const m = levelHp(k);
+    if (m !== 1) for (const w of l.waves) w.hm = (w.hm || 1) * m;
+    l.dungeon = { b, k, cost };
   }
   // Appelé par Ro() (fin de partie) quand l.dungeon existe : donne le butin et affiche le résultat.
   function finish(won, quit) {
@@ -364,8 +385,12 @@ const RPG = (() => {
       loot = [];
     if (won) {
       const n = stars === 3 ? 2 : 1,
-        ilvl = 1 + d.b * 4 + (d.diff === "normal" ? 2 : d.diff === "difficile" ? 4 : 0);
-      for (let i = 0; i < n; i++) loot.push(rollItem(SLOTS[Math.floor(Math.random() * SLOTS.length)].id, rollRarity(d.diff), ilvl));
+        ilvl = 1 + d.b * 4 + (d.k - 1);
+      if ((r.dun[d.b] || 0) < d.k) {
+        r.dun[d.b] = d.k;
+        d.fresh = true;
+      }
+      for (let i = 0; i < n; i++) loot.push(rollItem(SLOTS[Math.floor(Math.random() * SLOTS.length)].id, rollRarity(d.k), ilvl));
       r.inv.push(...loot);
       if (typeof et == "function") et("win");
     }
@@ -378,11 +403,11 @@ const RPG = (() => {
     setTimeout(
       () =>
         Ne(
-          `${head}<p>${ue[d.b].name} · ${d.diff === "facile" ? "Facile" : "Normal"}</p>${body}<div class="stack"><button class="btn go" data-rpg="dungeon" data-b="${d.b}" data-d="${d.diff}" ${keys() >= d.cost ? "" : "disabled"} data-focus>Rejouer · ${d.cost} 🗝️</button><button class="btn" data-rpg="open" data-k="inv">Inventaire</button><button class="btn" data-nav="home">Menu principal</button></div>`,
+          `${head}<p>${ue[d.b].name} · Niveau ${d.k}${won && d.fresh && d.k < DUN_LEVELS ? " — niveau " + (d.k + 1) + " débloqué !" : ""}</p>${body}<div class="stack"><button class="btn go" data-rpg="dungeon" data-b="${d.b}" data-k="${d.k}" ${keys() >= d.cost ? "" : "disabled"} data-focus>Rejouer · ${d.cost} 🗝️</button><button class="btn" data-rpg="open" data-k="inv">Inventaire</button><button class="btn" data-nav="home">Menu principal</button></div>`,
           "rpg",
         ),
       quit ? 0 : 800,
     );
   }
-  return { open, apply, crit, finish, _test: { S, keys, rollItem, boosts, SLOTS, RARITY, STATS, KEY_MAX, KEY_MS, startDungeon, resetCache: () => (cache = null) } };
+  return { open, apply, crit, finish, _test: { rarityStats: () => { const o = {}; for (const k of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) { const c = [0, 0, 0, 0, 0]; for (let i = 0; i < 4000; i++) c[rollRarity(k)]++; o[k] = c; } return o; }, S, keys, rollItem, boosts, SLOTS, RARITY, STATS, KEY_MAX, KEY_MS, startDungeon, resetCache: () => (cache = null) } };
 })();
