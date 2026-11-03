@@ -9414,7 +9414,7 @@
         }
       if (l.wave > (l.estart || 0) && !l.cleared[l.wave] && !l.queue.length && !l.enemies.length && !l.over) {
         l.cleared[l.wave] = !0;
-        const t = Math.round((6 + 2 * l.wave) * (l.endless ? 0.55 : 1) * hr() * (mr() ? 0.8 : 1) * Uo() * (l.goldMul || 1));
+        const t = Math.round((6 + 2 * l.wave) * (l.endless ? 0.55 : 1) * hr() * (mr() ? 0.8 : 1) * Uo() * (l.goldMul || 1) * (l.waveMul || 1));
         ((l.gold += t),
           l.coop && (l.p2.gold += t),
           l.wave >= l.waves.length
