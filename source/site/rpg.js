@@ -70,9 +70,9 @@ const RPG = (() => {
     [20, 45, 35, 0, 0, 0],
     [10, 35, 45, 10, 0, 0],
     [5, 25, 50, 20, 0, 0],
-    [0, 15, 50, 30, 5, 0],
-    [0, 10, 40, 38, 12, 0],
-    [0, 5, 30, 40, 24.5, 0.5],
+    [0, 15, 50, 32, 3, 0],
+    [0, 10, 40, 42, 8, 0],
+    [0, 5, 30, 48.5, 16, 0.5],
   ];
   // Niveaux de donjon : indépendants des difficultés Facile/Normal/Difficile ; ils deviennent simplement de plus en plus durs.
   const DUN_LEVELS = 10;
