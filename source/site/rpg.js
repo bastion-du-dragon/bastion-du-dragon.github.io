@@ -81,6 +81,8 @@ const RPG = (() => {
   const levelCost = (k) => (k <= 5 ? 1 : 2);
   const LEVEL_HP = [15, 31.25, 45, 62.5, 80, 106.25, 128.75, 187.5, 250, 500]; // multiplicateur de PV des ennemis, niveau 1 à 10
   const levelHp = (k) => LEVEL_HP[k - 1];
+  const LEVEL_GOLD = [330, 400, 480, 560, 650, 750, 850, 960, 1080, 1200]; // or de départ
+  const LEVEL_GOLDMUL = [1, 1.3, 1.6, 1.9, 2.2, 2.6, 3, 3.4, 3.8, 4.3]; // multiplicateur de l'or des monstres et des fins de vague
 
   // ---- État du joueur -----------------------------------------------------
   const S = () => {
@@ -384,6 +386,8 @@ const RPG = (() => {
     xs(levelDiff(k), DUNGEON_LEVEL);
     const m = levelHp(k);
     if (m !== 1) for (const w of l.waves) w.hm = (w.hm || 1) * m;
+    l.gold = LEVEL_GOLD[k - 1];
+    l.goldMul = LEVEL_GOLDMUL[k - 1];
     l.dungeon = { b, k, cost };
   }
   // Appelé par Ro() (fin de partie) quand l.dungeon existe : donne le butin et affiche le résultat.

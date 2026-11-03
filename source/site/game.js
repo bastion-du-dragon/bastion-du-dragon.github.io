@@ -8795,7 +8795,7 @@
           gold: Math.max(
             1,
             Math.round(
-              s.gold * (1 + 0.05 * (e.w - 1)) * (l.endless ? 0.55 : ne[ce].kill) * pr * hr() * (mr() ? 0.8 : 1) * Uo() * xl(e.lw) * wl(),
+              s.gold * (1 + 0.05 * (e.w - 1)) * (l.endless ? 0.55 : ne[ce].kill) * pr * hr() * (mr() ? 0.8 : 1) * Uo() * xl(e.lw) * wl() * (l.goldMul || 1),
             ),
           ),
           atk: s.atk * (1 + 0.06 * (e.w - 1)),
@@ -9414,7 +9414,7 @@
         }
       if (l.wave > (l.estart || 0) && !l.cleared[l.wave] && !l.queue.length && !l.enemies.length && !l.over) {
         l.cleared[l.wave] = !0;
-        const t = Math.round((6 + 2 * l.wave) * (l.endless ? 0.55 : 1) * hr() * (mr() ? 0.8 : 1) * Uo());
+        const t = Math.round((6 + 2 * l.wave) * (l.endless ? 0.55 : 1) * hr() * (mr() ? 0.8 : 1) * Uo() * (l.goldMul || 1));
         ((l.gold += t),
           l.coop && (l.p2.gold += t),
           l.wave >= l.waves.length
