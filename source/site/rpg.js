@@ -71,7 +71,8 @@ const RPG = (() => {
   const MIN_LEVEL = [1, 2, 4, 6, 8]; // niveau de donjon minimum pour qu'une rareté puisse tomber
   const levelDiff = () => "facile"; // base de vagues ; la difficulté vient du multiplicateur de points de vie
   const levelCost = (k) => (k <= 5 ? 1 : 2);
-  const levelHp = (k) => 1 + 0.5 * (k - 1); // niveau 1 = x1, niveau 10 = x5,5
+  const LEVEL_HP = [15, 31.25, 45, 62.5, 80, 106.25, 128.75, 187.5, 250, 500]; // multiplicateur de PV des ennemis, niveau 1 à 10
+  const levelHp = (k) => LEVEL_HP[k - 1];
 
   // ---- État du joueur -----------------------------------------------------
   const S = () => {
