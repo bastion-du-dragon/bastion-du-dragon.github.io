@@ -18,7 +18,8 @@ const RPG = (() => {
     { name: "Rare", color: "#5aa8ff", lines: 3, sell: 120 },
     { name: "Épique", color: "#b66cff", lines: 4, sell: 300 },
     { name: "Légendaire", color: "#ffb02e", lines: 5, sell: 800 },
-    // La rareté « Unique » est prévue (au-dessus de Légendaire) mais n'a aucun effet pour le moment.
+    // « Unique » : au-dessus de Légendaire, ne tombe qu'au niveau 10. Stats comme un Légendaire ; l'effet spécial reste à définir.
+    { name: "Unique", color: "#ff5a6e", lines: 5, sell: 2000 },
   ];
   // max = valeur maximale (en %) à l'objet de niveau 1 ; elle monte avec le niveau d'objet.
   const STATS = {
@@ -60,15 +61,22 @@ const RPG = (() => {
   ];
   const INV_MAX = 60;
   const DUNGEON_LEVEL = 5; // index du niveau de carte utilisé comme donjon
-  // Poids de tirage de la rareté selon la difficulté de base du niveau de donjon.
-  const LOOT_W = {
-    facile: [58, 30, 10, 1.8, 0.2],
-    normal: [35, 35, 20, 8, 2],
-    difficile: [18, 32, 28, 17, 5],
-  };
+  // Chances (en %) de chaque rareté selon le niveau du donjon (1 à 10) : Commun, Peu commun, Rare, Épique, Légendaire, Unique.
+  const LOOT_TABLE = [
+    [100, 0, 0, 0, 0, 0],
+    [70, 30, 0, 0, 0, 0],
+    [50, 50, 0, 0, 0, 0],
+    [35, 45, 20, 0, 0, 0],
+    [20, 45, 35, 0, 0, 0],
+    [10, 35, 45, 10, 0, 0],
+    [5, 25, 50, 20, 0, 0],
+    [0, 15, 50, 30, 5, 0],
+    [0, 10, 40, 38, 12, 0],
+    [0, 5, 30, 40, 24.5, 0.5],
+  ];
   // Niveaux de donjon : indépendants des difficultés Facile/Normal/Difficile ; ils deviennent simplement de plus en plus durs.
   const DUN_LEVELS = 10;
-  const MIN_LEVEL = [1, 2, 4, 6, 8]; // niveau de donjon minimum pour qu'une rareté puisse tomber
+  const MIN_LEVEL = [1, 2, 4, 6, 8, 10]; // niveau de donjon minimum pour qu'une rareté puisse tomber (affichage)
   const levelDiff = () => "facile"; // base de vagues ; la difficulté vient du multiplicateur de points de vie
   const levelCost = (k) => (k <= 5 ? 1 : 2);
   const LEVEL_HP = [15, 31.25, 45, 62.5, 80, 106.25, 128.75, 187.5, 250, 500]; // multiplicateur de PV des ennemis, niveau 1 à 10
@@ -143,11 +151,10 @@ const RPG = (() => {
     return { id, slot: slotId, r: rarity, lv: ilvl, name: names[Math.floor(Math.random() * names.length)], lines };
   }
   function rollRarity(k) {
-    const w = LOOT_W.normal.map((x, i) => (k >= MIN_LEVEL[i] ? x * (1 + 0.1 * (k - MIN_LEVEL[i])) : 0)),
-      tot = w.reduce((a, b) => a + b, 0);
-    let x = Math.random() * tot;
+    const w = LOOT_TABLE[Math.min(10, Math.max(1, k)) - 1];
+    let x = Math.random() * 100;
     for (let i = 0; i < w.length; i++) if ((x -= w[i]) < 0) return i;
-    return 0;
+    return w.findIndex((q) => q > 0);
   }
   const lineTxt = (ln) => "+" + ln.v.toFixed(1).replace(/\.0$/, "") + " % " + STATS[ln.s].name + " · " + (Le[ln.t] ? Le[ln.t].short : ln.t);
   const itemHtml = (it, extra = "") =>
@@ -283,9 +290,10 @@ const RPG = (() => {
             btns = [];
           for (let n = 1; n <= DUN_LEVELS; n++)
             btns.push(`<button class="btn small ${n === cur ? "go" : ""}" data-rpg="sel" data-b="${bi}" data-k="${n}" ${n > top ? "disabled" : ""}>${n > top ? Rt : n}</button>`);
-          const drops = RARITY.filter((_, i) => MIN_LEVEL[i] <= cur)
-              .map((x) => `<span style="color:${x.color}">${x.name}</span>`)
-              .join(", "),
+          const row = LOOT_TABLE[cur - 1],
+            drops = RARITY.map((x, i) => (row[i] > 0 ? `<span style="color:${x.color}">${x.name} ${row[i]} %</span>` : ""))
+              .filter(Boolean)
+              .join(" · "),
             nxt = RARITY.findIndex((_, i) => MIN_LEVEL[i] > cur),
             hint = nxt >= 0 ? ` · ${RARITY[nxt].name} dès le niveau ${MIN_LEVEL[nxt]}` : "";
           return `<div class="rpg-dun"><b>${b.name}</b><small>Niveau ${cur} · Terminés : ${done}/${DUN_LEVELS}</small><div class="rpg-act" style="flex-wrap:wrap">${btns.join("")}</div><small>Butin : ${drops}${hint}</small><button class="btn go" data-rpg="dungeon" data-b="${bi}" data-k="${cur}" ${k >= levelCost(cur) ? "" : "disabled"}>Entrer · ${levelCost(cur)} 🗝️</button></div>`;

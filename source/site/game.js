@@ -688,6 +688,7 @@
           "Peu commun": "Uncommon",
           Épique: "Epic",
           Légendaire: "Legendary",
+          Unique: "Unique",
           "Insigne :": "Badge:",
           "+# % de d\xE9g\xE2ts pour": "+# % damage for",
           "par niveau": "per level",
