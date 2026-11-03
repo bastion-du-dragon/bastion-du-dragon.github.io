@@ -18,4 +18,4 @@ Reconstruit le 2026-11-03 à partir des versions publiées (site : commit 85e79f
 1. Toute modification du jeu est d'abord faite ici (`game.js`), puis construite, puis publiée.
 2. Après chaque publication : commit + push de ce dossier.
 3. Chaque semaine : une archive `.zip` de ce dossier est envoyée à Pierre, à garder de son côté (cloud, PC).
-4. Les scripts SQL Supabase (matchmaking, invites, saves) ne sont pas dans cette archive (perdus) : à rajouter ici dès qu'ils sont retrouvés.
+4. Scripts SQL Supabase : setup et matchmaking sont dans archive/. Invites et saves sont perdus : à rajouter ici dès qu'ils sont retrouvés.
