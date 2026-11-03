@@ -5,6 +5,7 @@
 ## Contenu
 - `site/` : version du site bêta (avec comptes, sauvegarde en ligne, réseau).
   - `game.js` : tout le code du jeu (formaté, mais les noms de variables sont ceux du build minifié : `vr` = genWaves, `ma` = waveThreat, `gr` = startGold...).
+  - `rpg.js` : le mode RPG (équipements, donjons à clés, butin). Inséré dans `game.js` par le build à la place du marqueur `@@RPG@@`. Seulement dans la version du site (il demande un compte). Points d'accroche dans `game.js` : `RPG.apply` (dans `rl`, stats des tours), `RPG.crit` (impact des projectiles), `RPG.finish` (dans `Ro`, fin de partie de donjon), bouton « Mode RPG » du menu et dictionnaire anglais.
   - `style.css` : les styles. `template.html` : la page, avec `/*@@CSS@@*/` et `/*@@JS@@*/` remplacés au build.
 - `artifact/` : version du jeu principal (claude.ai), même structure. Elle diffère du site par le code DEV retiré (réseau, comptes, sauvegarde en ligne), donc **une modification d'équilibrage doit être faite dans les deux `game.js`**.
 - `tools/build.mjs` : réassemble `template.html + style.css + game.js` en `dist/<site|artifact>.html` (option `--min` pour minifier avec esbuild).

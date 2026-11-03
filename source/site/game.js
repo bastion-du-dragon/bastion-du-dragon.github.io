@@ -12,6 +12,63 @@
     const na = (() => {
       if (Vs === "fr") return (f) => f;
       const e = {
+          "Mode RPG": "RPG mode",
+          "(bêta)": "(beta)",
+          "Héros": "Hero",
+          "Inventaire": "Inventory",
+          "Donjons": "Dungeons",
+          "Clés": "Keys",
+          "Le mode RPG demande un compte : ton équipement est enregistré sur ton compte.": "RPG mode needs an account: your gear is saved on your account.",
+          "Se connecter ou créer un compte": "Log in or create an account",
+          "Arme": "Weapon",
+          "Armure": "Armor",
+          "Casque": "Helmet",
+          "Amulette": "Amulet",
+          "Relique": "Relic",
+          "Bannière": "Banner",
+          "Vide": "Empty",
+          "Choisir une pièce": "Pick a piece",
+          "Équiper": "Equip",
+          "Équipée": "Equipped",
+          "Vendre +#": "Sell +#",
+          "Tout": "All",
+          "#/# pièces": "#/# pieces",
+          "Commun · niv. #": "Common · lvl #",
+          "Peu commun · niv. #": "Uncommon · lvl #",
+          "Rare · niv. #": "Rare · lvl #",
+          "Épique · niv. #": "Epic · lvl #",
+          "Légendaire · niv. #": "Legendary · lvl #",
+          "Dégâts critiques": "Critical damage",
+          "Critique": "Critical",
+          "Portée": "Range",
+          "Cadence": "Fire rate",
+          "Dégâts": "Damage",
+          "Crit.": "Crit.",
+          "Dég. crit.": "Crit. dmg",
+          "Aucune pièce. Gagne des donjons pour en trouver.": "No pieces yet. Win dungeons to find some.",
+          "Chaque donjon coûte des clés. Une victoire rapporte une pièce d'équipement (une de plus si tu gagnes avec # étoiles). Si le cristal est brisé, la clé est perdue.": "Each dungeon costs keys. A win drops a piece of gear (one more if you win with 3 stars). If the crystal is broken, the key is lost.",
+          "Termine le biome précédent en Facile": "Finish the previous biome on Easy",
+          "Facile · # 🗝️": "Easy · # 🗝️",
+          "Normal · # 🗝️": "Normal · # 🗝️",
+          "Normal (verrouillé) · # 🗝️": "Normal (locked) · # 🗝️",
+          "🗝️ Clés": "🗝️ Keys",
+          " · prochaine dans # h #": " · next in # h #",
+          "prochaine dans # h #": "next in # h #",
+          "Stock maximum # clés. Recharge naturelle : # clé toutes les # heures, même hors ligne.": "Maximum stock: # keys. Natural refill: # key every # hours, even offline.",
+          "Recharge de clés (+#)": "Key refill (+#)",
+          "#/# aujourd'hui · les # premières en écailles, les suivantes en gemmes": "#/# today · the first # with scales, the rest with gems",
+          "Acheter +# clés · #": "Buy +# keys · #",
+          "Limite du jour atteinte.": "Daily limit reached.",
+          "La boutique complète (ressources, packs, abonnement) arrive plus tard.": "The full shop (resources, packs, subscription) is coming later.",
+          "+# clés !": "+# keys!",
+          "Pas assez de clés.": "Not enough keys.",
+          "Inventaire plein : vends des pièces.": "Inventory full: sell some pieces.",
+          "Boosts de tes tours": "Your tower boosts",
+          "Équipe des pièces gagnées en donjon pour renforcer tes tours. Les boosts ne comptent ni en duel ni en coop.": "Equip pieces won in dungeons to strengthen your towers. Boosts do not apply in duels or co-op.",
+          "Donjon réussi !": "Dungeon cleared!",
+          "Donjon abandonné": "Dungeon abandoned",
+          "La clé est perdue. Retente ta chance !": "The key is lost. Try your luck again!",
+          "Rejouer · # 🗝️": "Play again · # 🗝️",
           "La Plaine de Verval": "The Plain of Verval",
           "Le seigneur de guerre Varek et son arm\xE9e envahissent la plaine. Les fermes tombent une \xE0 une, et le cristal est leur prochaine cible.":
             "The warlord Varek and his army are invading the plain. The farms fall one by one, and the crystal is their next target.",
@@ -5505,12 +5562,13 @@
       }
       return (a !== void 0 && a >= 0 && (we[a] ? (o.dmg *= 1 + 0.04 * Te("g6a")) : (o.range *= 1 + 0.03 * Te("g6b"))), o);
     }
+    /*@@RPG@@*/
     function rl(e, s) {
       const a = Le[e],
         t = v.ranks[e],
         o = (n) => (v.tree.gen && v.tree.gen[n]) || 0,
         r = (n) => Re(n);
-      return {
+      return RPG.apply(e, {
         dmg:
           a.dmg[s] *
           (1 + Ya(t) / 100) *
@@ -5521,7 +5579,7 @@
         splash: a.splash ? a.splash[s] * (1 + (e === "catapult" ? 0.12 * he(e, "n3") : 0) + 0.05 * o("g2b")) : 0,
         slow: a.slow ? Math.min(0.8, a.slow[s] + 0.06 * he(e, "n3")) : 0,
         slowDur: 1.6 + (e === "frost" ? 0.5 * he(e, "n4") : 0),
-      };
+      });
     }
     function Mt(e, s) {
       const a = (t) => (v.tree.gen && v.tree.gen[t]) || 0;
@@ -9122,6 +9180,7 @@
           n = Math.hypot(o, r),
           i = t.speed * e;
         if (n <= i + 4) {
+          RPG.crit(t);
           if (((t.done = !0), t.k === "alchemist")) {
             const d = Le.alchemist;
             for (const u of l.enemies) {
@@ -11389,7 +11448,7 @@
               Jl() +
               "</button></div>",
           )}
-  <div class="stack"><button class="btn go bigplay" data-nav="biomes" data-focus>Jouer \u25B6</button>${ra() ? `<button class="btn bigendless" data-nav="endless"><span>Mode infini<small>${v.eSave ? "Partie en cours \xB7 reprendre" : a ? "Record : " + a + " vague" + (a > 1 ? "s" : "") : "Les vagues ne s'arr\xEAtent jamais"}</small></span><i>\u221E</i></button>` : `<button class="btn lockbtn slim" disabled title="Finis le mode Facile (boss de l'Antre du dragon) pour le d\xE9bloquer">${Rt} Mode infini<small>\xB7 finis le mode Facile</small></button>`}</div><div class="stack" style="margin-top:-2px"><button class="btn" data-nav="online">En ligne <small style="opacity:.6">(b\xEAta)</small></button></div><button class="btn discordbtn" data-act2="discord"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M20.3 4.4A19.5 19.5 0 0 0 15.5 3l-.2.5a18 18 0 0 0-6.6 0L8.5 3a19.5 19.5 0 0 0-4.8 1.4C.7 8.9-.1 13.3.3 17.6A19.7 19.7 0 0 0 6.3 20.6l1.2-2a12.800 12.800 0 0 1-1.900-.9l.5-.4a14 14 0 0 0 12 0l.5.4c-.6.4-1.200.7-1.900.9l1.200 2a19.700 19.700 0 0 0 6-3c.5-5-.8-9.300-3.600-13.200zM8.500 14.900c-1.100 0-2-1-2-2.200s.9-2.200 2-2.200 2 1 2 2.200-.9 2.200-2 2.200zm7 0c-1.100 0-2-1-2-2.200s.9-2.200 2-2.200 2 1 2 2.200-.9 2.200-2 2.200z"/></svg><span>Rejoindre le Discord</span></button>
+  <div class="stack"><button class="btn go bigplay" data-nav="biomes" data-focus>Jouer \u25B6</button>${ra() ? `<button class="btn bigendless" data-nav="endless"><span>Mode infini<small>${v.eSave ? "Partie en cours \xB7 reprendre" : a ? "Record : " + a + " vague" + (a > 1 ? "s" : "") : "Les vagues ne s'arr\xEAtent jamais"}</small></span><i>\u221E</i></button>` : `<button class="btn lockbtn slim" disabled title="Finis le mode Facile (boss de l'Antre du dragon) pour le d\xE9bloquer">${Rt} Mode infini<small>\xB7 finis le mode Facile</small></button>`}</div><div class="stack" style="margin-top:-2px"><button class="btn" data-nav="rpg">Mode RPG <small style="opacity:.6">(b\xEAta)</small></button><button class="btn" data-nav="online">En ligne <small style="opacity:.6">(b\xEAta)</small></button></div><button class="btn discordbtn" data-act2="discord"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M20.3 4.4A19.5 19.5 0 0 0 15.5 3l-.2.5a18 18 0 0 0-6.6 0L8.5 3a19.5 19.5 0 0 0-4.8 1.4C.7 8.9-.1 13.3.3 17.6A19.7 19.7 0 0 0 6.3 20.6l1.2-2a12.800 12.800 0 0 1-1.900-.9l.5-.4a14 14 0 0 0 12 0l.5.4c-.6.4-1.200.7-1.900.9l1.200 2a19.700 19.700 0 0 0 6-3c.5-5-.8-9.300-3.600-13.200zM8.500 14.900c-1.100 0-2-1-2-2.200s.9-2.200 2-2.200 2 1 2 2.200-.9 2.200-2 2.200zm7 0c-1.100 0-2-1-2-2.200s.9-2.200 2-2.200 2 1 2 2.200-.9 2.200-2 2.200z"/></svg><span>Rejoindre le Discord</span></button>
   ${fn ? "" : Pt() ? '<button class="danger" data-act2="unlockall">Mode test : tout d\xE9bloquer (biomes, niveaux, difficult\xE9s)</button>' : '<div class="devcode"><input id="devIn" type="password" inputmode="text" autocomplete="off" placeholder="Code" aria-label="Code"><button class="btn small" data-act2="devcode">OK</button></div>'}`,
         "home",
       );
@@ -14964,7 +15023,7 @@
     function nu() {
       const e = Object.keys(l.cleared).length;
       Ne(
-        `<h2>Pause</h2><p>${l.endless ? "Mode infini \xB7 " : ""}${Oe[Yt].name} \xB7 vague ${l.wave}${l.endless ? "" : "/" + l.waves.length} \xB7 ${e} vague${e > 1 ? "s" : ""} repouss\xE9e${e > 1 ? "s" : ""}.</p><div class="stack"><button class="btn go" data-act2="resume" data-focus>Reprendre</button><button class="btn" data-act2="restart">Recommencer</button>${l.endless ? '<button class="btn green" data-act2="esave">Quitter et reprendre plus tard</button>' : ""}<button class="btn" data-act2="quit">${l.endless ? "Abandonner la partie" : "Abandonner le niveau"}</button><button class="btn" data-act2="tuto">Revoir le tuto</button>${!l.endless && ce !== "facile" ? '<button class="btn" data-act2="rules">Revoir les r\xE8gles</button>' : ""}</div>
+        `<h2>Pause</h2><p>${l.endless ? "Mode infini \xB7 " : ""}${Oe[Yt].name} \xB7 vague ${l.wave}${l.endless ? "" : "/" + l.waves.length} \xB7 ${e} vague${e > 1 ? "s" : ""} repouss\xE9e${e > 1 ? "s" : ""}.</p><div class="stack"><button class="btn go" data-act2="resume" data-focus>Reprendre</button>${l.dungeon ? "" : '<button class="btn" data-act2="restart">Recommencer</button>'}${l.endless ? '<button class="btn green" data-act2="esave">Quitter et reprendre plus tard</button>' : ""}<button class="btn" data-act2="quit">${l.endless ? "Abandonner la partie" : "Abandonner le niveau"}</button><button class="btn" data-act2="tuto">Revoir le tuto</button>${!l.endless && ce !== "facile" ? '<button class="btn" data-act2="rules">Revoir les r\xE8gles</button>' : ""}</div>
   ${Ei()}
   <p class="note">${l.endless ? (Mi() ? "Ta partie est sauvegard\xE9e telle quelle." : "Une vague est en cours : tu reprendras au d\xE9but de cette vague, avec ce que tu avais \xE0 ce moment-l\xE0.") + " Abandonner ou recommencer ne donne aucune r\xE9compense." : "Abandonner ou recommencer ne donne aucune r\xE9compense."}</p>`,
         "pause",
@@ -14988,9 +15047,11 @@
       if (!t || t.disabled) return;
       if (t.dataset.nav) {
         const r = t.dataset.nav;
-        r === "home"
-          ? qs()
-          : r === "options"
+        r === "rpg"
+          ? RPG.open()
+          : r === "home"
+            ? qs()
+            : r === "options"
             ? Kl()
             : r === "biomes"
               ? au()
@@ -15610,6 +15671,10 @@
       }
       if (l.over) return;
       ((l.over = !0), (l.won = e), (l.sel = null), (l.blockMode = !1), _e.classList.remove("blockmode"), (xe = ""), ze());
+      if (l.dungeon) {
+        RPG.finish(e, s);
+        return;
+      }
       const t = Object.keys(l.cleared).length,
         o = er[ce],
         r = Yt,

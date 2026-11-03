@@ -5,6 +5,8 @@ const v = process.argv[2] || 'site', min = process.argv.includes('--min');
 const d = new URL(`../${v}/`, import.meta.url).pathname;
 let js = fs.readFileSync(d + 'game.js', 'utf8');
 let css = fs.readFileSync(d + 'style.css', 'utf8');
+// Module RPG (rpg.js) : inséré à la place du marqueur /*@@RPG@@*/ s'il existe dans cette variante
+if (fs.existsSync(d + 'rpg.js')) js = js.replace('/*@@RPG@@*/', () => fs.readFileSync(d + 'rpg.js', 'utf8'));
 if (min) {
   // esbuild (déjà installé dans l'environnement) : npm i esbuild si absent
   const { transformSync } = await import(process.env.ESBUILD || 'esbuild');
