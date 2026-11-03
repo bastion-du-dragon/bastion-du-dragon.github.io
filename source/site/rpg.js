@@ -290,7 +290,7 @@ const RPG = (() => {
           return `<div class="rpg-dun"><b>${b.name}</b><small>Niveau ${cur} · Terminés : ${done}/${DUN_LEVELS}</small><div class="rpg-act" style="flex-wrap:wrap">${btns.join("")}</div><small>Butin : ${drops}${hint}</small><button class="btn go" data-rpg="dungeon" data-b="${bi}" data-k="${cur}" ${k >= levelCost(cur) ? "" : "disabled"}>Entrer · ${levelCost(cur)} 🗝️</button></div>`;
         })
         .join("");
-    return `<p class="note">Chaque donjon a 10 niveaux : termine un niveau pour débloquer le suivant. Les raretés les plus hautes ne tombent qu'à partir de certains niveaux. Une victoire rapporte une pièce (une de plus avec 3 étoiles). Si le cristal est brisé, la clé est perdue.</p>${rows}`;
+    return `<p class="note">Chaque donjon a 10 niveaux : termine un niveau pour débloquer le suivant. Les raretés les plus hautes ne tombent qu'à partir de certains niveaux. Une victoire rapporte une pièce (une de plus avec 3 étoiles, une de plus avec Bastion+). Si le cristal est brisé, la clé est perdue.</p>${rows}`;
   }
   function shopHtml(r, k) {
     const n = paidToday(),
@@ -384,7 +384,7 @@ const RPG = (() => {
       stars = won ? (l.crystal.hp / l.crystal.max >= 0.8 ? 3 : 1) : 0,
       loot = [];
     if (won) {
-      const n = stars === 3 ? 2 : 1,
+      const n = (stars === 3 ? 2 : 1) + (Ge() ? 1 : 0), // Bastion+ : une pièce de plus
         ilvl = 1 + d.b * 4 + (d.k - 1);
       if ((r.dun[d.b] || 0) < d.k) {
         r.dun[d.b] = d.k;

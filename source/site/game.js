@@ -46,7 +46,7 @@
           "Crit.": "Crit.",
           "Dég. crit.": "Crit. dmg",
           "Aucune pièce. Gagne des donjons pour en trouver.": "No pieces yet. Win dungeons to find some.",
-          "Chaque donjon a # niveaux : termine un niveau pour débloquer le suivant. Les raretés les plus hautes ne tombent qu'à partir de certains niveaux. Une victoire rapporte une pièce (une de plus avec # étoiles). Si le cristal est brisé, la clé est perdue.": "Each dungeon has # levels: clear one to unlock the next. Higher rarities only drop from certain levels. A win drops one piece (one more with 3 stars). If the crystal is broken, the key is lost.",
+          "Chaque donjon a # niveaux : termine un niveau pour débloquer le suivant. Les raretés les plus hautes ne tombent qu'à partir de certains niveaux. Une victoire rapporte une pièce (une de plus avec # étoiles, une de plus avec Bastion+). Si le cristal est brisé, la clé est perdue.": "Each dungeon has # levels: clear one to unlock the next. Higher rarities only drop from certain levels. A win drops one piece (one more with 3 stars, one more with Bastion+). If the crystal is broken, the key is lost.",
           "Entrer": "Enter",
           "Butin": "Loot",
           "Terminés": "Cleared",
