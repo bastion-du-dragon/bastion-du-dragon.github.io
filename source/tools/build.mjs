@@ -10,7 +10,7 @@ if (fs.existsSync(d + 'rpg.js')) js = js.replace('/*@@RPG@@*/', () => fs.readFil
 if (min) {
   // esbuild (déjà installé dans l'environnement) : npm i esbuild si absent
   const { transformSync } = await import(process.env.ESBUILD || 'esbuild');
-  js = transformSync(js, { minify: true, target: 'es2020' }).code;
+  js = transformSync(js, { minifyWhitespace: true, minifySyntax: true, minifyIdentifiers: false, target: 'es2020' }).code;
   css = css.replace(/\s*\n\s*/g, '');
 }
 const t = fs.readFileSync(d + 'template.html', 'utf8')
